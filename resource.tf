@@ -1,10 +1,10 @@
 resource "azurerm_resource_group" "base" {
-  name = "Terraform-Azure"
-  location = "West Europe"
+  name = var.resource_group.name
+  location = var.resource_group.location
 }
 
 resource "azurerm_virtualnetwork_config" "base" {
-    name = "Terraform-Azure-Network"
+    name = var.virtualnetwork.name
     resource_group_name = azurerm_resource_group.base.name
     location = azurerm_resource_group.base.location
     depends_on = [ 
@@ -15,32 +15,13 @@ resource "azurerm_virtualnetwork_config" "base" {
 
 # Creating subnets
 
-resource "azurerm_subnets" "AZ-1" {
-  name = var.subnets_names.base[0]
+resource "azurerm_subnets" "Azure" {
+  count = length(var.subnet_config)
+  name = var.subnet_config[count.index].name
   resource_group_name = azurerm_resource_group.base.name
   resource_virtualnetwork = azurerm_virtualnetwork_config.base.name
-  address = var.address_values.base[0]
-  depends_on = [ 
-    azurerm_resource_group.base,
-    azurerm_virtualnetwork_config.base
-   ]
-}
-
-resource "azurerm_subnets" "AZ-2" {
-  name = var.subnets_names.base[1]
-  resource_group_name = azurerm_resource_group.base.name
-  resource_virtualnetwork = azurerm_virtualnetwork_config.base.name
-  address = var.address_values.base[1]
-  depends_on = [ 
-    azurerm_resource_group.base,
-    azurerm_virtualnetwork_config.base
-   ]
-}
-resource "azurerm_subnets" "AZ-3" {
-  name = var.subnets_names.base[2]
-  resource_group_name = azurerm_resource_group.base.name
-  resource_virtualnetwork = azurerm_virtualnetwork_config.base.name
-  address = var.address_values.base[2]
+  address = var.subnet_config[count.index].address
+  location = var.subnet_config[count.index].location
   depends_on = [ 
     azurerm_resource_group.base,
     azurerm_virtualnetwork_config.base
